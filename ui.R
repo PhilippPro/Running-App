@@ -1,32 +1,34 @@
 library(shiny)
+library(shinydashboard)
 
-# Define UI for app that draws a histogram ----
-ui <- fluidPage(
-  
-  # App title ----
-  titlePanel("Hello Shiny!"),
-  
-  # Sidebar layout with input and output definitions ----
-  sidebarLayout(
-    
-    # Sidebar panel for inputs ----
-    sidebarPanel(
+ui <- dashboardPage(
+  dashboardHeader(title = "Running App"),
+  ## Sidebar content
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Data Input", tabName = "input", icon = icon("dashboard")),
+      menuItem("Graphs", tabName = "graphs", icon = icon("th"))
+    )
+  ),
+  ## Body content
+  dashboardBody(
+    tabItems(
+      # Input
+      tabItem(tabName = "input",
+              h2("Data Input")
+      ),
       
-      # Input: Slider for the number of bins ----
-      sliderInput(inputId = "bins",
-                  label = "Number of bins:",
-                  min = 1,
-                  max = 50,
-                  value = 30)
-      
-    ),
-    
-    # Main panel for displaying outputs ----
-    mainPanel(
-      
-      # Output: Histogram ----
-      plotOutput(outputId = "distPlot")
-      
+      # Graphs
+      tabItem(tabName = "graphs",
+              fluidRow(
+                box(plotOutput("plot1", height = 250)),
+                
+                box(
+                  title = "Controls",
+                  sliderInput("slider", "Number of observations:", 1, 100, 50)
+                )
+              )
+      )
     )
   )
 )

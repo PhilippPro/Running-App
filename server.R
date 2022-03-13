@@ -1,7 +1,7 @@
 server <- function(input, output) {
 
   source("extra_functions.R")
-  data = read_ods(path = "/media/philipp/Elements/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H91")
+  data = read_ods(path = "/media/philipp/Elements/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H96")
   setDT(data)
 
   data$Index = 1:nrow(data)

@@ -1,7 +1,8 @@
 server <- function(input, output) {
 
   source("extra_functions.R")
-  data = read_ods(path = "/media/philipp/Elements/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H96")
+  data = read_ods(path = "/media/philipp/Elements/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H2000")
+  data = data[!is.na(data$Datum),]
   setDT(data)
 
   data$Index = 1:nrow(data)
@@ -61,7 +62,9 @@ server <- function(input, output) {
       name = "km_pro_jahr",
       type = "bar"
     )
+    fig = fig %>% layout(yaxis = list(title = 'km'))
     fig
+    
   })
   # km pro Jahr/Monat
   output$plot_km_pro_jahr_monat <- renderPlotly({
@@ -71,6 +74,7 @@ server <- function(input, output) {
       name = "km_pro_jahr",
       type = "bar"
     )
+    fig = fig %>% layout(yaxis = list(title = 'km (Gesamt)'))
     fig
   })
   # Durchschnitts km pro Jahr/Monat
@@ -81,6 +85,7 @@ server <- function(input, output) {
       name = "km_pro_jahr",
       type = "bar"
     )
+    fig = fig %>% layout(yaxis = list(title = 'km pro Lauf (Mittelwert)'))
     fig
   })
   # km pro Schuhe
@@ -91,6 +96,7 @@ server <- function(input, output) {
       name = "km_pro_schuhe",
       type = "bar"
     )
+    fig = fig %>% layout(yaxis = list(title = 'km'))
     fig
   })
 

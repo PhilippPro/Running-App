@@ -1,19 +1,50 @@
 server <- function(input, output) {
 
   source("extra_functions.R")
-  data = read_ods(path = "/media/philipp/Elements/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H2000")
-  data = data[!is.na(data$Datum),]
-  setDT(data)
+  
+  #### Alte Daten ####
+  data_old = read_ods(path = "/media/philipp/Elements/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H2000")
+  data_old = data_old[!is.na(data_old$Datum),]
+  setDT(data_old)
+  data_old$Index = 1:nrow(data_old)
+  data_old$Datum = as.Date(data_old$Datum, format = "%d.%m.%Y")
 
-  data$Index = 1:nrow(data)
-  data$Datum = as.Date(data$Datum, format = "%d.%m.%Y")
+  #### Garmin Daten ####
+  activities = read.csv("/home/philipp/Downloads/Activities.csv")
+  setDT(activities)
+  activities = activities[order(Datum)]
+
+  activities$Jahr = substr(as.character(activities$Datum), 1, 4)
+  activities$Monat = substr(as.character(activities$Datum), 6, 7)
+  activities$Tag = substr(as.character(activities$Datum), 9, 10)
+  activities$Datum = as.Date(as.character(activities$Datum))
+  activities = activities[Jahr >= 2022]
+  #activities$Datum_alt = paste(activities$Tag, activities$Monat, activities$Jahr, sep = ".")
+  #write.csv(activities, file = "/home/philipp/Downloads/Activities_adjusted.csv")
+  head(activities)
+  
+  #### Mergen der Daten ####
+  data_new = activities[, c("Datum", "Distanz", "Zeit", "Anstieg.gesamt")]
+  data_new$Schuhe = sample(c("Brooks Adrenaline", "Sportiva Akasha"), nrow(data_new), replace = TRUE, prob = c(0.6, 0.4))
+  standard_names = c("Datum", "km", "Zeit", "Höhenmeter", "Schuhe")
+  colnames(data_new) = standard_names
+  
+  data$Zeit
+  data_new$Zeit = as.numeric(as.difftime(as.character(data_new$Zeit), units = "secs"))
+  data_old$Zeit = as.numeric(data_old$Zeit)
+  data_old$Datum = as.Date(paste0("20", data_old$Datum))
+  
+  data = rbind(data_old[, ..standard_names], data_new)
+  
+  # Kennzahlen berechnen
   data$Zeit_pro_km = data$Zeit/data$km
   data$Minute_pro_km = round((data$Zeit_pro_km) / 60, 2)
   data$Kilometer_pro_h = round(data$km/as.numeric(((data$Zeit)/3600)), 2)
   data$Min_pro_km = round(1/(data$Kilometer_pro_h/60), 2)
   
-  data$Jahr = paste0("20", format(data$Datum, format="%Y"))
+  data$Jahr = format(data$Datum, format="%Y")
   data$Monat = as.numeric(format(data$Datum, format="%m"))
+  data$Index = 1:nrow(data)
   
   # Gesamtanzahl km
   gesamt_km = sum(data$km)

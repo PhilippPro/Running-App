@@ -10,7 +10,7 @@ server <- function(input, output) {
   data_old$Datum = as.Date(data_old$Datum, format = "%d.%m.%Y")
 
   #### Garmin Daten ####
-  activities = read.csv("/home/philipp/Downloads/Activities.csv")
+  activities = read.csv("/media/philipp/Elements/Sport/Running-App/Activities.csv")
   setDT(activities)
   activities = activities[order(Datum)]
 
@@ -29,7 +29,6 @@ server <- function(input, output) {
   standard_names = c("Datum", "km", "Zeit", "Höhenmeter", "Schuhe")
   colnames(data_new) = standard_names
   
-  data$Zeit
   data_new$Zeit = as.numeric(as.difftime(as.character(data_new$Zeit), units = "secs"))
   data_old$Zeit = as.numeric(data_old$Zeit)
   data_old$Datum = as.Date(paste0("20", data_old$Datum))

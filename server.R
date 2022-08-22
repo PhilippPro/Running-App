@@ -1,5 +1,6 @@
 server <- function(input, output) {
 
+  library(stringr)
   source("extra_functions.R")
   
   #### Alte Daten ####
@@ -10,7 +11,7 @@ server <- function(input, output) {
   data_old$Datum = as.Date(data_old$Datum, format = "%d.%m.%Y")
 
   #### Garmin Daten ####
-  activities = read.csv("/media/philipp/Elements/Sport/Running-App/Activities.csv")
+  activities = read.csv("/media/philipp/Elements/Sport/Running-App/data/Activities.csv")
   setDT(activities)
   activities = activities[order(Datum)]
 
@@ -26,10 +27,15 @@ server <- function(input, output) {
   #### Mergen der Daten ####
   data_new = activities[, c("Datum", "Distanz", "Zeit", "Anstieg.gesamt")]
   data_new$Schuhe = sample(c("Brooks Adrenaline", "Sportiva Akasha"), nrow(data_new), replace = TRUE, prob = c(0.6, 0.4))
+  data_new$Schuhe[(nrow(data_new) - 1): nrow(data_new)] = "Sportiva Akyra"
   standard_names = c("Datum", "km", "Zeit", "Höhenmeter", "Schuhe")
   colnames(data_new) = standard_names
   
   data_new$Zeit = as.numeric(as.difftime(as.character(data_new$Zeit), units = "secs"))
+  
+  data_new$km = as.character(data_new$km)
+  data_new$km = str_replace_all(data_new$km, ",", ".")
+  data_new$km = as.numeric(data_new$km)
   data_old$Zeit = as.numeric(data_old$Zeit)
   data_old$Datum = as.Date(paste0("20", data_old$Datum))
   

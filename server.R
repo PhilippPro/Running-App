@@ -4,14 +4,17 @@ server <- function(input, output) {
   source("extra_functions.R")
   
   #### Alte Daten ####
-  data_old = read_ods(path = "/media/philipp/Elements/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H2000")
+  
+  data_old = read_ods(path = "F:/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H2000")
+  #data_old = read_ods(path = "/media/philipp/Elements/Sport/Laufzeiten.ods", sheet = 1, range = "A1:H2000")
   data_old = data_old[!is.na(data_old$Datum),]
   setDT(data_old)
   data_old$Index = 1:nrow(data_old)
-  data_old$Datum = as.Date(data_old$Datum, format = "%d.%m.%Y")
+  data_old$Datum = as.Date(data_old$Datum, format = "%d.%m.%y")
 
   #### Garmin Daten ####
-  activities = read.csv("/media/philipp/Elements/Sport/Running-App/data/Activities.csv")
+  activities = read.csv("F:/Sport/Running-App/data/Activities.csv")
+  #activities = read.csv("/media/philipp/Elements/Sport/Running-App/data/Activities.csv")
   setDT(activities)
   activities = activities[order(Datum)]
 
@@ -26,20 +29,28 @@ server <- function(input, output) {
   
   #### Mergen der Daten ####
   data_new = activities[, c("Datum", "Distanz", "Zeit", "Anstieg.gesamt")]
-  data_new$Schuhe = sample(c("Brooks Adrenaline", "Sportiva Akasha"), nrow(data_new), replace = TRUE, prob = c(0.6, 0.4))
+  data_new$Schuhe = sample(c("Brooks Adrenaline", "Brooks Sonoma", "Sportiva Akasha"), nrow(data_new), replace = TRUE, prob = c(0.4, 0.3, 0.3))
   data_new$Schuhe[(nrow(data_new) - 1): nrow(data_new)] = "Sportiva Akyra"
-  standard_names = c("Datum", "km", "Zeit", "Höhenmeter", "Schuhe")
+  standard_names = c("Datum", "km", "Zeit", "Hoehenmeter", "Schuhe") # 
   colnames(data_new) = standard_names
-  
+
   data_new$Zeit = as.numeric(as.difftime(as.character(data_new$Zeit), units = "secs"))
   
   data_new$km = as.character(data_new$km)
   data_new$km = str_replace_all(data_new$km, ",", ".")
   data_new$km = as.numeric(data_new$km)
-  data_old$Zeit = as.numeric(data_old$Zeit)
-  data_old$Datum = as.Date(paste0("20", data_old$Datum))
+  data_new[data_new$Hoehenmeter == "--",]$Hoehenmeter = 0
+  data_new$Hoehenmeter = as.numeric(data_new$Hoehenmeter)
+  setDT(data_new)
   
-  data = rbind(data_old[, ..standard_names], data_new)
+  data_old$Zeit = as.numeric(data_old$Zeit)
+  data_old$Datum = as.Date(data_old$Datum)
+  #data_old$Datum = as.Date(paste0("20", data_old$Datum))
+  setDT(data_old)
+  setnames(data_old, "Höhenmeter", "Hoehenmeter")
+  
+  data = rbind(data_old[, ..standard_names], data_new[, ..standard_names])
+
   
   # Kennzahlen berechnen
   data$Zeit_pro_km = data$Zeit/data$km

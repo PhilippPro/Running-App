@@ -25,8 +25,8 @@ ui <- dashboardPage(
       tabItem(tabName = "graphs",
               
               fluidRow(
-                box(selectInput("jahr_von", "Von", choices = c(2020:2022))),
-                box(selectInput("jahr_bis", "Bis", selected = 2022, choices = c(2020:2022)))
+                box(selectInput("jahr_von", "Von", choices = c(2020:2023))),
+                box(selectInput("jahr_bis", "Bis", selected = 2023, choices = c(2020:2023)))
               ),
               
               fluidRow(
